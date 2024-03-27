@@ -1,11 +1,12 @@
 #include <stdio.h>
-
+#include <locale.h>
 void novo_valor_produto(char nome[50], float preco) {
     float novo_preco = preco * 1.20;
     printf("O novo valor do produto %s é: R$%.2f\n", nome, novo_preco);
 }
 
 int main() {
+    setlocale(LC_ALL,"");
     char nome_produto[50];
     float preco_produto;
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <locale.h>
 
 void numeros_pares_intervalo(int x, int y) {
     if (x > y) {
@@ -16,6 +17,7 @@ void numeros_pares_intervalo(int x, int y) {
 }
 
 int main() {
+    setlocale(LC_ALL,"");
     int inicio, fim;
 
     printf("Digite o primeiro número do intervalo: ");

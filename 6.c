@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <locale.h>
 
 float calcular_serie(int n) {
     float serie = 0.0;
@@ -16,12 +17,13 @@ float calcular_serie(int n) {
 }
 
 int main() {
+    setlocale(LC_ALL,"");
     int n_termos;
-    printf("Digite a quantidade de termos da série: ");
+    printf("Digite a quantidade de termos da serie: ");
     scanf("%d", &n_termos);
 
     float resultado = calcular_serie(n_termos);
-    printf("Resultado da série: %.2f\n", resultado);
+    printf("Resultado da serie: %.2f\n", resultado);
 
     return 0;
 }

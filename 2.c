@@ -1,10 +1,11 @@
 #include <stdio.h>
-
+#include <locale.h>
 float multiplicacao_numeros(float a, float b) {
     return a * b;
 }
 
 int main() {
+    setlocale(LC_ALL,"");
     float num1, num2, resultado;
     char resposta;
 

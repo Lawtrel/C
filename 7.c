@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-
-#define MAX_PESSOAS 10
+#include <locale.h>
+#define MAX_PESSOAS 2
 
 struct Pessoa {
     char nome[50];
@@ -44,13 +44,14 @@ void informacoes_pessoas(struct Pessoa pessoas[], int num_pessoas) {
         media_pesos_mulheres = soma_pesos_mulheres / count_mulheres;
     }
 
-    printf("Média das alturas dos homens: %.2f\n", media_alturas_homens);
-    printf("Média dos pesos das mulheres: %.2f\n", media_pesos_mulheres);
+    printf("Media das alturas dos homens: %.2f\n", media_alturas_homens);
+    printf("Media dos pesos das mulheres: %.2f\n", media_pesos_mulheres);
     printf("Homem mais alto: %s\n", nome_homem_mais_alto);
     printf("Mulher mais gorda: %s\n", nome_mulher_mais_gorda);
 }
 
 int main() {
+    setlocale(LC_ALL,"");
     struct Pessoa pessoas[MAX_PESSOAS];
 
     printf("Digite os dados das pessoas:\n");

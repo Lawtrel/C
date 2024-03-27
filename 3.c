@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <locale.h>
 
 float operacoes(float a, float b, char operador) {
     switch (operador) {
@@ -22,19 +23,20 @@ float operacoes(float a, float b, char operador) {
 }
 
 int main() {
+    setlocale(LC_ALL,"Portuguese");
     float numero1, numero2, resultado;
     char operador;
 
-    printf("Digite o primeiro número: ");
+    printf("Digite o primeiro numero: ");
     scanf("%f", &numero1);
-    printf("Digite o segundo número: ");
+    printf("Digite o segundo numero: ");
     scanf("%f", &numero2);
-    printf("Digite a operação (+, -, *, /): ");
+    printf("Digite a operacao (+, -, *, /): ");
     scanf(" %c", &operador);
 
     resultado = operacoes(numero1, numero2, operador);
 
-    printf("Resultado da operação: %.2f\n", resultado);
+    printf("Resultado da operacao: %.2f\n", resultado);
 
     return 0;
 }
