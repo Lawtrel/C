@@ -1,118 +1,157 @@
-/*
-Seja PROGRAMADORES um arquivo direto, composto dos campos CPF, NOME, IDADE e
-PROFISSÃO. Escreva um programa com uma rotina para recuperar os registros salvos no
-disco, outra para inserir registros nesse arquivo e outra que exclua todas as informações
-existentes sobre os programadores com idade entre 25 e 50 anos.
-*/
-#include <stdio.h>
-#include<string.h>
+/*Desenvolva uma rotina que receba duas listas circulares (listaA e listaB) como parâmetros. A seguir 
+desenvolva a lógica para colocar os elementos da listaA e da listaB em ordem crescente em uma pilha 
+criada localmente. Escreva no final os elementos da pilha. 
+Obs: Considere que a listaA e a listaB já estão ordenadas e possuem o mesmo tamanho. Para trabalhar 
+com a estrutura de pilha deve ser usado o critério. Podem ser usadas as funções descritas nos slides sem 
+reescrevê-las.*/
 
-struct Programador
-{
-  float cpf;
-  char nome[50];
-  int idade;
-  char profissao;
-};
+ #include <stdio.h>
+ #include <stdlib.h>
+ typedef struct node {
+    int num;
+    struct node *prox;
+ }T_node;
+ 
+ typedef struct{
+    T_node *topo;
+ }T_pilha;
 
-void registros() {
-  FILE *arq;
-  struct Programador programador;
+ typedef struct{
+    T_node *inicio;
+    T_node *fim;
+ }T_lista;
+ 
+T_node *obt_endereco();
+void insere(int, T_lista *);
 
-  arq = fopen("database.db","rb");
 
-  if (arq == NULL) {
-    printf("Erro ao abrir o arquivo.\n");
-    return;
-  }
-  printf("Registros salvos no banco de dados.\n");
-  while (fread(&programador, sizeof(struct Programador),1,arq)) {
-    printf("CPF: %f\nNome: %s\nIdade: %d\nProfissao: %s\n\n", programador.cpf, programador.nome, programador.idade, programador.profissao);
-  }
-  fclose(arq);
-}
-void inserirRegistros() {
-  FILE *arq;
-  struct Programador programador;
+//maldita pilha
+void ini_pilha(T_pilha *);
+void empilhar(T_pilha *, int);
+void mostrar_pilha(T_pilha *);
+void ini_lista(T_lista *);
+void mescla(T_lista *, T_lista *, T_pilha *);
 
-  arq = fopen("database.db", "ab");
-  if (arq == NULL) {
-
-  }
-  printf("Informe o CPF: ");
-  scanf("%f", programador.cpf);
-  fflush(stdin);
-  printf("Informe o nome: ");
-  scanf("%s", programador.nome);
-  printf("Informe a idade: ");
-  scanf("%d", programador.idade);
-  printf("Informe a Profissao: ");
-  scanf("%s", programador.profissao);
-
-  fwrite(&programador, sizeof(struct Programador), 1, arq);
-  fclose(arq);
-  printf("Registro Inseridos!");
-  }
-
-  void excluirRegistro () {
-    FILE *arqTemp, *arq;
-    struct Programador programador;
-    arq = fopen("database.db","wb");
-    if (arq == NULL) {
-      printf("Error ao abrir o banco de dados!.\n");
-      return;
-    }
-    arqTemp = fopen("tempDB.db","wb");
-    if (arqTemp == NULL) {
-      printf("Error ao criar o banco de dados temporario!\n ");
-      fclose(arq);
-      return;
-    }
-    while (fread(&programador, sizeof(struct Programador), 1, arq)) {
-      if(programador.idade < 25 || programador.idade > 50) {
-        fwrite(&programador, sizeof(struct Programador),1,arqTemp);
-      }
-    }
-    fclose(arq);
-    fclose(arqTemp);
-    remove("database.db");
-    rename("tempDB.db","database.db");
-
-    printf("Programadores com idade entre 25 a 50 excluidos!");
-  }
-
-  int main() {
+main() {
     int op;
+    int valor;
+    T_lista listaA, listaB;
+    T_pilha pilha;
+    ini_pilha(&pilha);
+    ini_lista(&listaA);
+    ini_lista(&listaB);
 
-    do
+
+    do {
+        printf("\n 1 - Incluir");
+        printf("\n 2 - Incluir 2");
+        printf("\n 3 - Mostrar");
+        printf("\n 4 - Mescla");
+        printf("\n 0 - Sair \n");
+        scanf("%d",&op);
+
+        switch (op)
+        {
+        case 1:
+            printf("\nDigite o Numeros: ");
+            scanf("%d",&valor);
+            insere(valor,&listaA);
+            break;
+        case 2:
+            printf("\nDigite o Numero: ");
+            scanf("%d",&valor);
+            insere(valor,&listaB);
+            break;
+        case(3):
+            mostrar_pilha(&pilha);
+            break;
+        case 4:
+                mescla(&listaA, &listaB, &pilha);
+                printf("\nElementos da Pilha em Ordem Crescente:\n");
+                mostrar_pilha(&pilha);
+            break;
+        }
+    }while(op!= 0);
+    return 0;
+}
+void ini_lista(T_lista *lista) {
+    lista->inicio = NULL;
+    lista->fim = NULL;
+}
+
+T_node *obt_endereco() {
+    T_node *novo = (T_node *) malloc(sizeof(T_node));
+    if (novo == NULL) {
+        printf("Sem memoria");
+        exit(1);
+    }
+    return(novo);
+}
+
+void insere(int valor, T_lista *lista) {
+    T_node *novo=obt_endereco();
+    novo->num=valor;
+    if (lista->inicio == NULL) {
+        lista->inicio = novo;
+        lista->fim = novo;
+        novo->prox = lista->inicio; // circular ai mano
+    } else {
+        lista->fim->prox = novo;
+        lista->fim = novo;
+        novo->prox = lista->inicio; // vai circulando de novo ai
+    }
+}
+
+void ini_pilha(T_pilha *pilha) {
+    pilha->topo = NULL;
+}
+//empilha essa porra ai
+void empilhar(T_pilha *pilha, int valor) {
+    T_node *novo = obt_endereco();
+    novo->num = valor;
+    novo->prox = pilha->topo;
+    pilha->topo = novo;
+}
+
+void mostrar_pilha(T_pilha *pilha) {
+    T_node *temp = pilha->topo;
+    if (temp == NULL) {
+        printf("Vazio");
+    } else {
+        printf("Elementos da pilha: \n");
+        while (temp != NULL){
+            printf("%d\n", temp->num);
+            temp = temp->prox;
+        }
+    }
+}
+void mescla(T_lista *listA, T_lista *listaB, T_pilha *pilha) {
+    T_node *a = listA->inicio;
+    T_node *b = listaB->inicio;
+    if (a == NULL || b == NULL)
     {
-      printf("\nMenu:\n");
-      printf("1. Recuperar registros\n");
-      printf("2. Inserir registros\n");
-      printf("3. Excluir programadores com idade entre 25 e 50\n");
-      printf("4. Sair\n");
-      scanf("%d",&op);
+        printf("Listas Vazias!");
+        return;
+    }
+    
+    do {
+        if (a->num <= b->num) {
+            empilhar(pilha, a->num);
+            a = a->prox;
+        } else {
+            empilhar(pilha, b->num);
+            b = b->prox;
+        }
+    } while (a != listA->inicio && b != listaB->inicio); // corre menor pela listas
+    //insere qualquer merda na listas
+    while (a != listA->inicio) {
+        empilhar(pilha, a-> num);
+        a = a->prox;
+    }
+    while (b != listaB->inicio)
+    {
+        empilhar(pilha, b->num);
+        b = b->prox;
+    }
+}
 
-      switch (op)
-      {
-      case 1:
-        registros();
-        break;
-      
-      case 2:
-        inserirRegistros();
-        break;
-      
-      case 3:
-        excluirRegistro();
-      break;
-      case 4:
-        break;
-
-      default:
-        printf("Opcao invalida.\n");
-        break;
-      }
-    } while (op !=4);
-      return 0;
-  }

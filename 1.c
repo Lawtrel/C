@@ -1,144 +1,164 @@
-#include <stdio.h>
-#include <stdlib.h>
+/*Escreva uma função que receba como parâmetro uma fila dinâmica e possa identificar quais números
+contidos na fila satisfazem a propriedade descrita abaixo e possa colocar esses números em uma pilha
+estática. No final mostre a pilha estática usando o critério de pilha.*/
 
- typedef struct Notas
- {
-     int matricula;
-     char nome[30];
-     float nota1;
-     float nota2;
- } t_Notas;
-
- t_Notas var_arq;
- FILE *arq;
- int op;
-
- void Arq();
- void menu();
- void incluir();
- void ler();
- void calcular_media();
- void sair();
-
-  void Arq() {
-    arq = fopen("database.db","r+b");
-    if (arq == NULL) {
-        arq = fopen("database.db","w+b");
-        if ( arq == NULL) {
-            printf("\n Error 404");
-            return;
-        }
-    }
- }
-
- void menu() {
-    do
-    {
-        {
-            printf("(1)Incluir dados,(2)Ler dados,(3)Calcular a media,(0)Sair: ");
-            scanf("%d",&op);
-            switch(op) {
-                case 1 : incluir();
-                        break;
-                case 2 : ler();
-                        break;
-                case 3 : calcular_media();
-                        break;
-                case 0 : sair();
-                        break;
-                default: printf("\n Opcao invalida");
-                        break;
-            }
-        }
-    } while (op != 0);
-    
- }
-
- int pesquisa(int c) {
-    int achou = 0, contRegistros = -1;
-    fseek(arq, 0, SEEK_SET);
-    while ((feof(arq) == 0) && (achou ==0))
-    { 
-        fread(&var_arq,sizeof(var_arq), 1, arq);
-        contRegistros++;
-        if (c == var_arq.matricula) {
-            achou = 1;
-        }
-    }
-    if (achou == 1) {
-        return contRegistros;
-    }
-    else {
-        return -1;
-    }
- }
-
- void incluir() {
-    int matricula;
-    char op;
-    do
-    {
-        printf("\n Digite o codigo da matricula: ");
-        scanf("%d",&matricula);
-
-        if (pesquisa(matricula) == -1) {
-            var_arq.matricula = matricula;
-            printf("\n Entre com o nome: ");
-            scanf("%s",& var_arq.nome);
-            printf("\n Entre com a primeira nota: ");
-            scanf("%f",&var_arq.nota1);
-            printf("\n Entre com a segunda nota: ");
-            scanf("%f",&var_arq.nota2);
-            if (fwrite(&var_arq,sizeof(var_arq), 1, arq) != 1) {
-                printf("\n Erro de gravacao");
-            }
-        }
-        else {
-            printf("\n Matricula ja cadastrada!");
-        }
-        printf("deseja Continuar?(s/n) : ");
-        fflush(stdin);
-        scanf("%c",&op);
-    } while (op != 'n');
- }
-
- void ler() {
-    fseek(arq, 0, SEEK_SET);
-    fread(&var_arq,sizeof(var_arq), 1, arq);
-    while (feof(arq)==0)
-    {
-        if (var_arq.matricula != 0) {
-            printf("\n Codigo: %d Nome: %s  Nota 1: %.2f Nota 2: %.2f\n",var_arq.matricula,var_arq.nome,var_arq.nota1,var_arq.nota2);
-        }
-        fread(&var_arq,sizeof(var_arq), 1, arq);
-    }
-    
- }
-
- void calcular_media() {
-    fseek(arq, 0, SEEK_SET);
-    int total_aprovados = 0;
-    float media;
-    while (fread(&var_arq, sizeof(var_arq), 1, arq) != 0) {
-        media = (var_arq.nota1 + var_arq.nota2) / 2.0;
-        if (media >= 7.0) {
-            total_aprovados++;
-        }
-    }
-    printf("\nTotal de alunos com media maior ou igual a 7: %d\n",total_aprovados);
- }
-
- void sair() {
-    fclose(arq);
-    printf("\n Programa finalizado");
-    exit(0);
- }
-
- main() {
-    Arq();
-    do {
-        menu();
-    } while (op!= 0);
-    return 0;
+ #include <stdio.h>
+ #include <stdlib.h>
+ typedef struct node {
+    int num;
+    struct node *prox;
+ }T_node;
  
- }
+ typedef struct cab_fila {
+    struct node *inicio;
+    struct node *fim;
+ }T_fila;
+
+ typedef struct{
+    int dados[100];
+    int topo;
+ }T_pilha;
+
+T_fila *ini_fila();
+T_node *obt_endereco();
+void insere(int, T_fila *);
+int retira(T_fila *);
+void mostra(T_fila *);
+
+//maldita pilha
+void ini_pilha(T_pilha *pilha);
+void empilhar(T_pilha *pilha, int valor);
+void mostrar_pilha(T_pilha *pilha);
+int verificar(int num);
+void processa_fila(T_fila *fila, T_pilha *pilha);
+
+main() {
+    int op;
+    int valor;
+    T_fila *fila=ini_fila();
+    T_pilha pilha;
+    ini_pilha(&pilha);
+
+    do {
+        printf("\n 1 - Incluir");
+        printf("\n 2 - Excluir");
+        printf("\n 3 - Mostrar");
+        printf("\n 0 - Sair \n");
+
+        scanf("%d",&op);
+
+        switch (op)
+        {
+        case(1):
+            printf("\n Digite os Numeros: ");
+            scanf("%d",&valor);
+            insere(valor,fila);
+            break;
+        case(2):
+            retira(fila);
+            break;
+        case(3):
+            mostra(fila);
+            break;
+        case 4:
+            processa_fila(fila,&pilha);
+            printf("\n numeros que satisfazem a propriedade: \n");
+            mostrar_pilha(&pilha);
+            break;
+        }
+
+    }while(op!= 0);
+
+}
+    T_fila * ini_fila() {
+        T_fila *fila = (T_fila *) malloc(sizeof(struct cab_fila));
+        if (fila == NULL) {
+            printf("Sem memoria!\n");
+            exit(1);
+        }else {
+            fila->inicio = NULL;
+            fila->fim=NULL;
+            return fila;
+        }
+    }
+
+T_node *obt_endereco() {
+    T_node *novo;
+    novo=(T_node *) malloc(sizeof(struct node));
+    if (novo == NULL) {
+        printf("Sem memoria");
+        exit(1);
+    }
+    return(novo);
+}
+
+void insere(int valor, T_fila *fila) {
+    T_node *novo=obt_endereco();
+    novo->prox=NULL;
+    novo->num=valor;
+    if (fila->inicio == NULL) {
+        fila->inicio = novo;
+        fila->fim=novo;
+    } else {
+        fila->fim->prox=novo;
+        fila->fim=novo;
+    }
+
+}
+
+int retira(T_fila *fila) {
+    T_node *aux;
+    int valor = -1;
+    if (fila->inicio == NULL) {
+        printf("\n Fila vazia");
+    } else {
+        aux = fila->inicio;
+        valor = aux->num;
+        fila->inicio=aux->prox;
+        free(aux);
+    }
+    return valor;
+}
+
+void mostra(T_fila *fila) {
+    T_node *aux = fila->inicio;
+    printf("Dados existente: ");
+    while (aux != NULL) {
+        printf("\n %d",aux->num);
+        aux = aux->prox;
+    }
+}
+
+void ini_pilha(T_pilha *pilha) {
+    pilha->topo = -1;
+}
+void empilhar(T_pilha *pilha, int valor) {
+    if (pilha->topo < 99) {
+        pilha->dados[++pilha->topo] = valor;
+    } else {
+        printf("Pilha encheu menor! N da para empilhar mais");
+    }
+}
+
+void mostrar_pilha(T_pilha *pilha) {
+    for (int i= pilha->topo; i >= 0; i--) {
+        printf("%d\n",pilha->dados[i]);
+    }
+}
+
+int verificar(int num) {
+    int n1 = num / 100;
+    int n2 = num % 100;
+    int som = n1 + n2;
+    return (som * som == num);
+}
+
+void processa_fila(T_fila *fila, T_pilha *pilha) {
+    while (fila->inicio != NULL) {
+    int num = retira(fila);
+    if (verificar(num)) {
+        empilhar(pilha,num);
+    }
+}    
+}
+
